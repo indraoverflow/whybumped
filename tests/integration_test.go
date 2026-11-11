@@ -615,8 +615,8 @@ func TestBaseLocalReplace(t *testing.T) {
 		t.Fatalf("exit %d\n%s%s", r.code, r.stdout, r.stderr)
 	}
 	mustContain(t, r.stdout,
-		"WARN  raised example.com/retry v1.0.0 -> v1.3.0\n        raised to v1.3.0 because example.com/lib@v0.0.0 requires it",
-		"pulled in through: example.com/lib@v0.0.0 (2)",
+		"WARN  raised example.com/retry v1.0.0 -> v1.3.0\n        raised to v1.3.0 because example.com/lib@v0.0.0 => ../lib requires it",
+		"pulled in through: example.com/lib@v0.0.0 => ../lib (2)",
 	)
 }
 

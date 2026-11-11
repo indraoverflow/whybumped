@@ -940,7 +940,7 @@ func chainFor(s *side, node string) []string {
 			return s.isSelected(reqs[i]) && !s.isSelected(reqs[j])
 		})
 		if len(reqs) == 0 {
-			return buildChain(parent, cur)
+			return withReplacements(s, buildChain(parent, cur))
 		}
 		for _, r := range reqs {
 			if _, ok := parent[r]; !ok {
@@ -949,7 +949,7 @@ func chainFor(s *side, node string) []string {
 			}
 		}
 	}
-	return buildChain(parent, last)
+	return withReplacements(s, buildChain(parent, last))
 }
 
 func buildChain(parent map[string]string, end string) []string {
@@ -962,6 +962,28 @@ func buildChain(parent map[string]string, end string) []string {
 		rev[i], rev[j] = rev[j], rev[i]
 	}
 	return rev
+}
+
+// withReplacements annotates each node in a chain with its replacement, when
+// the selected module has a replace directive.
+func withReplacements(s *side, nodes []string) []string {
+	out := make([]string, len(nodes))
+	for i, node := range nodes {
+		out[i] = nodeWithReplacement(s, node)
+	}
+	return out
+}
+
+func nodeWithReplacement(s *side, node string) string {
+	path, version, _ := strings.Cut(node, "@")
+	m, ok := s.Selected[path]
+	if !ok || m.Version != version || m.Replace == nil {
+		return node
+	}
+	if m.Replace.Version != "" {
+		return node + " => " + m.Replace.Path + "@" + m.Replace.Version
+	}
+	return node + " => " + m.Replace.Path
 }
 
 func (s *side) isSelected(node string) bool {
